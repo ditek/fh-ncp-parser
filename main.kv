@@ -1,0 +1,109 @@
+#:kivy 2.0.0
+#: set input_widget_size '100dp', '36dp'
+
+MainWidget:
+
+<HorizontalBoxLayout@BoxLayout>:
+    orientation: 'horizontal'
+
+<VerticalBoxLayout@BoxLayout>:
+    orientation: 'vertical'
+
+<BoxLayout>:
+    spacing: dp(18)
+
+<BorderedBox@BoxLayout>:
+    border_width: 1
+    padding: dp(8), 0
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 0.5
+        Line:
+            width: 1
+            rectangle: self.x, self.y, self.width, self.height
+
+<CustomText@TextInput>:
+    size_hint_y: None
+    size: input_widget_size
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    font_size: sp(16)
+    padding_y: [self.height / 2.0 - (self.line_height / 2.0) * len(self._lines), 0]
+
+<CustomSpinner@Spinner>:
+    size_hint_y: None
+    size: input_widget_size
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+<Separator@Widget>:
+    size_hint_x: None
+    width: dp(1)
+    border_width: 1
+    canvas:
+        Color:
+            rgb: 0, 0, 0
+        Rectangle:
+            pos: self.x + self.width - self.border_width, self.y
+            size: self.border_width, self.height
+
+<MainLabel@Label+Separator>:
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    size_hint_x: None
+    width: max(self.texture_size[0], dp(130))
+    bold: True
+
+<SmallButton@Button>:
+    size_hint_y: None
+    size: input_widget_size
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+<Space@Widget>:
+    size_hint_y: None
+    height: dp(16)
+
+###########################################################
+
+# Widget tree
+
+<MainWidget@BoxLayout>:
+    orientation: 'vertical'
+    spacing: '0dp'
+    padding: '20dp'
+
+    HorizontalBoxLayout:
+        MainLabel:
+            text: 'Frame type'
+        HorizontalBoxLayout:
+            CustomSpinner:
+                id: frame_type
+                text: 'Metering event'
+                values: ['Metering event']
+
+    HorizontalBoxLayout:
+        MainLabel:
+            text: 'Frame data'
+        HorizontalBoxLayout:
+            CustomText:
+                id: data
+
+
+    HorizontalBoxLayout:
+        SmallButton:
+            text: 'Parse'
+            on_press: app.on_parse(frame_type.text, data.text)
+
+    TextInput:
+        size_hint_y: 1
+        id: log
+        background_color: (0, 0, 0, 1)
+        foreground_color: (0, 1, 0, 1)
+        multiline: True
+
+    # Just some space
+    Space:
+
+    BorderedBox:
+        size_hint_y: 4
+        VerticalBoxLayout:
+            id: field
+        VerticalBoxLayout:
+            id: value
