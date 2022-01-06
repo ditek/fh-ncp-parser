@@ -1,6 +1,8 @@
 # FutureHome NCP frame parser
 A GUI application for easily parsing frames received from the NCP on FutureHome hub.
 
+![Screenshot](Screenshot.png)
+
 ## Setup and usage
 _Note: tested on Windows._
 
