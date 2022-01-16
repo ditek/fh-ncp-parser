@@ -1,4 +1,5 @@
 from typing import List
+from collections import OrderedDict
 from dataclasses import dataclass
 from kivy.app import App
 from kivy.core.window import Window
@@ -8,8 +9,10 @@ from kivy.uix.label import Label
 
 @dataclass
 class FrameType:
+    # An optional start index in case the listed fields do not start at 0
     start_idx: int
-    fields: dict
+    # A map between field names and lengths
+    fields: OrderedDict
 
 
 ###########################################################
@@ -17,25 +20,25 @@ class FrameType:
 frame_types = {
     'Metering event': FrameType(
         start_idx=1,
-        fields={
+        fields=OrderedDict({
             'udid': 2,
             'ep': 1,
             'attributeFlag': 1,
             'curSumDelivered': 8,
             'curSumReceived': 8,
             'instantDemand': 4,
-        }
+        })
     ),
     'OTA query next image event response': FrameType(
         start_idx=1,
-        fields={
+        fields=OrderedDict({
             'udid': 2,
             'ep': 1,
             'ManufacturerID': 2,
             'ImageType': 2,
             'FileVersion': 4,
             'ImageSize': 4,
-        }
+        })
     ),
 }
 
@@ -62,6 +65,7 @@ class MainApp(App, BoxLayout):
         self.root.ids.log.text = str(text)
 
     def on_parse(self, frame_type, data):
+        self.log('')
         str_arr = data.replace('[', '').replace(']', '').split(' ')
         if '' in str_arr:
             str_arr.remove('')
@@ -76,7 +80,8 @@ class MainApp(App, BoxLayout):
         current_idx = frame.start_idx
         for field, field_len in frame.fields.items():
             if current_idx+field_len > len(data_bytes):
-                self.log(f'Error: frame length mismatch. Check the selected frame type')
+                self.log(
+                    f'Error: frame length mismatch. Check the selected frame type')
                 return
             values[field] = to_int(
                 data_bytes[current_idx:current_idx+field_len])
