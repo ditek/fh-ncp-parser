@@ -9,6 +9,9 @@ MainWidget:
 <VerticalBoxLayout@BoxLayout>:
     orientation: 'vertical'
 
+<VerticalBoxLayout2@BoxLayout+RedBackground>:
+    orientation: 'vertical'
+
 <BoxLayout>:
     spacing: dp(18)
 
@@ -61,6 +64,14 @@ MainWidget:
     size_hint_y: None
     height: dp(16)
 
+<RedBackground@Widget>:
+    canvas.before:
+        Color:
+            rgba: 1, 0, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
 ###########################################################
 
 # Widget tree
@@ -84,7 +95,6 @@ MainWidget:
             CustomText:
                 id: data
 
-
     HorizontalBoxLayout:
         SmallButton:
             text: 'Parse'
@@ -104,5 +114,12 @@ MainWidget:
         size_hint_y: 4
         VerticalBoxLayout:
             id: field
-        VerticalBoxLayout:
-            id: value
+        RelativeLayout:
+            VerticalBoxLayout:
+                id: value
+            SmallButton:
+                text: "Copy"
+                pos_hint:{"right":1, "top":1}
+                size_hint: None, None
+                size: dp(48), dp(24)
+                on_press: app.on_copy()

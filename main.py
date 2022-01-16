@@ -5,6 +5,7 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from kivy.core.clipboard import Clipboard
 
 
 @dataclass
@@ -42,6 +43,8 @@ frame_types = {
     ),
 }
 
+result_text = ''
+
 ###########################################################
 
 
@@ -65,6 +68,7 @@ class MainApp(App, BoxLayout):
         self.root.ids.log.text = str(text)
 
     def on_parse(self, frame_type, data):
+        global result_text
         self.log('')
         str_arr = data.replace('[', '').replace(']', '').split(' ')
         if '' in str_arr:
@@ -90,11 +94,16 @@ class MainApp(App, BoxLayout):
 
         self.root.ids.field.clear_widgets()
         self.root.ids.value.clear_widgets()
+        result_text = ''
         for item in result:
             field = Label(text=str(item[0]))
             value = Label(text=str(item[1]))
             self.root.ids.field.add_widget(field)
             self.root.ids.value.add_widget(value)
+            result_text += f'{item[0]}\t\t{item[1]}\n'
+
+    def on_copy(self):
+        Clipboard.copy(result_text)
 
 
 if __name__ == '__main__':
