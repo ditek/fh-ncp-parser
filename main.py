@@ -1,9 +1,45 @@
-
 from typing import List
+from dataclasses import dataclass
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+
+
+@dataclass
+class FrameType:
+    start_idx: int
+    fields: dict
+
+
+###########################################################
+
+frame_types = {
+    'Metering event': FrameType(
+        start_idx=1,
+        fields={
+            'udid': 2,
+            'ep': 1,
+            'attributeFlag': 1,
+            'curSumDelivered': 8,
+            'curSumReceived': 8,
+            'instantDemand': 4,
+        }
+    ),
+    'OTA query next image event response': FrameType(
+        start_idx=1,
+        fields={
+            'udid': 2,
+            'ep': 1,
+            'ManufacturerID': 2,
+            'ImageType': 2,
+            'FileVersion': 4,
+            'ImageSize': 4,
+        }
+    ),
+}
+
+###########################################################
 
 
 def to_int(hex_arr: List) -> int:
@@ -13,6 +49,11 @@ def to_int(hex_arr: List) -> int:
 
 
 class MainApp(App, BoxLayout):
+
+    def on_start(self):
+        self.root.ids.frame_type.values = [
+            frame_name for frame_name in frame_types.keys()]
+        return super().on_start()
 
     def log(self, text, append=False):
         """Write something to the log box"""
@@ -30,35 +71,17 @@ class MainApp(App, BoxLayout):
             self.log('Error: cannot parse list elements as integers')
             return
 
-        if frame_type == 'Metering event':
-            udidIndex = 1
-            epIndex = udidIndex + 2
-            attributeFlagIndex = epIndex + 1
-            curSumDeliveredIndex = attributeFlagIndex + 1
-            curSumReceivedIndex = curSumDeliveredIndex + 8
-            instantDemandIndex = curSumReceivedIndex + 8
-
-            if len(data_bytes) < instantDemandIndex:
-                self.log(
-                    f'Error: Expected data length {instantDemandIndex} got {len(data_bytes)}')
+        frame = frame_types[frame_type]
+        values = {}
+        current_idx = frame.start_idx
+        for field, field_len in frame.fields.items():
+            if current_idx+field_len > len(data_bytes):
+                self.log(f'Error: frame length mismatch. Check the selected frame type')
                 return
-
-            udid = to_int(data_bytes[udidIndex:udidIndex+2])
-            ep = to_int(data_bytes[epIndex:epIndex+1])
-            curSumDelivered = to_int(
-                data_bytes[curSumDeliveredIndex:curSumDeliveredIndex + 8])
-            curSumReceived = to_int(
-                data_bytes[curSumReceivedIndex:curSumReceivedIndex + 8])
-            instantDemand = to_int(
-                data_bytes[instantDemandIndex:instantDemandIndex + 4])
-
-            result = (
-                ('udid', udid),
-                ('ep', ep),
-                ('curSumDelivered', curSumDelivered),
-                ('curSumReceived', curSumReceived),
-                ('instantDemand', instantDemand),
-            )
+            values[field] = to_int(
+                data_bytes[current_idx:current_idx+field_len])
+            current_idx += field_len
+        result = ((x, y) for x, y in values.items())
 
         self.root.ids.field.clear_widgets()
         self.root.ids.value.clear_widgets()

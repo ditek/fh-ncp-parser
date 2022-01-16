@@ -33,6 +33,7 @@ MainWidget:
     size_hint_y: None
     size: input_widget_size
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    text_autoupdate: True
 
 <Separator@Widget>:
     size_hint_x: None
@@ -75,8 +76,6 @@ MainWidget:
         HorizontalBoxLayout:
             CustomSpinner:
                 id: frame_type
-                text: 'Metering event'
-                values: ['Metering event']
 
     HorizontalBoxLayout:
         MainLabel:
