@@ -30,6 +30,27 @@ frame_types = {
             'instantDemand': 4,
         })
     ),
+    'Metering format set attr': FrameType(
+        start_idx=1,
+        fields=OrderedDict({
+            'Status': 1,
+            'clusterFlags': 2,
+            'unitofMeasure': 1,
+            'multiplier': 4,
+            'divisor': 4,
+            'sumFormatting': 1,
+            'demFormatting': 1,
+            'histConsFormatting': 1,
+            'metDeviceType': 1,
+            'energyCarUnitOfMeas': 1,
+            'energyCarSumFormatting': 1,
+            'energyCarDemFormatting': 1,
+            'tempUnitOfMeasure': 1,
+            'tempFormatting': 1,
+            'siteID': 33,
+            'serialNumber': 25,
+        })
+    ),
     'OTA query next image event response': FrameType(
         start_idx=1,
         fields=OrderedDict({
@@ -39,6 +60,19 @@ frame_types = {
             'ImageType': 2,
             'FileVersion': 4,
             'ImageSize': 4,
+        })
+    ),
+    'OTA block event response': FrameType(
+        start_idx=1,
+        fields=OrderedDict({
+            'udid': 2,
+            'ep': 1,
+            'ManufacturerCode' :2,
+            'ImageType' :2,
+            'FileVersion' :4,
+            'FileOffset' :4,
+            'DataSize' :1,
+            'ImageData' :1,
         })
     ),
 }
@@ -85,7 +119,7 @@ class MainApp(App, BoxLayout):
         for field, field_len in frame.fields.items():
             if current_idx+field_len > len(data_bytes):
                 self.log(
-                    f'Error: frame length mismatch. Check the selected frame type')
+                    f'Error: frame length mismatch for "{field}". Expected ({current_idx+field_len}) got ({len(data_bytes)}) Check the selected frame type')
                 return
             values[field] = to_int(
                 data_bytes[current_idx:current_idx+field_len])
